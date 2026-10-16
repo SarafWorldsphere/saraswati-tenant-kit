@@ -1,3 +1,5 @@
+"use client";
+
 import { useSchool } from "./TenantProvider";
 
 export function SchoolBrand({ subtitle }: { subtitle?: string }) {

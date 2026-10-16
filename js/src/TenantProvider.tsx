@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { SCHOOL_CSS_VARIABLES, type SchoolConfig } from "./types";
 
