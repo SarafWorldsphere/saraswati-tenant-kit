@@ -26,7 +26,7 @@ ALTER ROLE swais_app_user NOSUPERUSER NOBYPASSRLS;
 Python, from this directory:
 
 ```bash
-pip install "git+https://github.com/SarafWorldsphere/saraswati-tenant-kit.git@v1#subdirectory=python"
+pip install "git+https://github.com/SarafWorldsphere/saraswati-tenant-kit.git@main#subdirectory=python"
 ```
 
 ```python
@@ -54,7 +54,7 @@ Environment:
 JavaScript:
 
 ```bash
-npm install github:SarafWorldsphere/saraswati-tenant-kit#v1
+npm install github:SarafWorldsphere/saraswati-tenant-kit#main
 ```
 
 The package root is `js/`. Import `@saraswati/tenant-kit` (`TenantProvider`, `useSchool`, `SchoolBrand`, `loadSchoolConfig`).
