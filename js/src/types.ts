@@ -1,8 +1,12 @@
-export type SchoolTheme = {
-  primary: string;
-  accent: string;
-  background: string;
-};
+export const THEME_NAMES = ["indigo-classic", "bright-blue", "plain-card"] as const;
+
+export type ThemeName = (typeof THEME_NAMES)[number];
+
+export function themeName(value: unknown): ThemeName {
+  return typeof value === "string" && (THEME_NAMES as readonly string[]).includes(value)
+    ? (value as ThemeName)
+    : "indigo-classic";
+}
 
 export type SchoolConfig = {
   tenantId: string;
@@ -12,7 +16,8 @@ export type SchoolConfig = {
   place: string;
   logoUrl: string;
   faviconUrl: string;
-  theme: SchoolTheme;
+  theme: string;
+  layout: string;
   smsSenderName: string;
   supportEmail: string;
 };

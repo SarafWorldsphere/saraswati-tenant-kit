@@ -6,7 +6,8 @@
   "main": "./js/src/index.ts",
   "types": "./js/src/index.ts",
   "exports": {
-    ".": "./js/src/index.ts"
+    ".": "./js/src/index.ts",
+    "./themes.css": "./js/src/themes/index.css"
   },
   "peerDependencies": {
     "react": ">=18"
