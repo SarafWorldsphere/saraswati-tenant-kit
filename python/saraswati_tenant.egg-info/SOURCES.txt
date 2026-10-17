@@ -1,0 +1,16 @@
+pyproject.toml
+saraswati_tenant/__init__.py
+saraswati_tenant/context.py
+saraswati_tenant/errors.py
+saraswati_tenant/middleware.py
+saraswati_tenant/resolve.py
+saraswati_tenant/s3keys.py
+saraswati_tenant/session.py
+saraswati_tenant/types.py
+saraswati_tenant.egg-info/PKG-INFO
+saraswati_tenant.egg-info/SOURCES.txt
+saraswati_tenant.egg-info/dependency_links.txt
+saraswati_tenant.egg-info/requires.txt
+saraswati_tenant.egg-info/top_level.txt
+tests/test_schema_contract.py
+tests/test_tenant.py

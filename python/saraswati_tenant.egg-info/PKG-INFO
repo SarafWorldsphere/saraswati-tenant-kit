@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: saraswati-tenant
+Version: 0.1.0
+Summary: School resolution, row-level security session binding, and S3 key rules.
+Requires-Python: >=3.11
+Requires-Dist: psycopg[binary]>=3.1
+Requires-Dist: psycopg-pool>=3.2
+Requires-Dist: starlette>=0.37
+Provides-Extra: sqlalchemy
+Requires-Dist: SQLAlchemy>=2; extra == "sqlalchemy"
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
