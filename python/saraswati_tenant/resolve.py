@@ -15,7 +15,7 @@ Lookup = Callable[[str], School | None]
 
 _lookup: Lookup | None = None
 _cache: dict[str, tuple[float, School]] = {}
-_CACHE_SECONDS = 60
+_CACHE_SECONDS = 60 * 60 * 24  # 24 hours
 
 _LOOKUP_SQL = """
 SELECT
