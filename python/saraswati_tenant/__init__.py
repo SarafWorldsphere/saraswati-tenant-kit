@@ -5,7 +5,7 @@ from saraswati_tenant.errors import SchoolNotFound, SchoolSuspended
 from saraswati_tenant.middleware import SchoolMiddleware
 from saraswati_tenant.resolve import normalize_host, resolve_school, set_school_lookup
 from saraswati_tenant.s3keys import s3_path_validator, build_key
-from saraswati_tenant.session import apply_rls, open_school_session
+from saraswati_tenant.session import apply_rls, bind_rls, open_school_session
 from saraswati_tenant.types import School
 
 __all__ = [
@@ -14,6 +14,7 @@ __all__ = [
     "SchoolNotFound",
     "SchoolSuspended",
     "apply_rls",
+    "bind_rls",
     "s3_path_validator",
     "build_key",
     "current_school",

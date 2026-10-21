@@ -32,6 +32,46 @@ def apply_rls(db, tenant_id: str | None = None) -> None:
     db.execute("SELECT set_config('app.tenant_id', %s, true)", (school_id,))
 
 
+def bind_rls(session_factory) -> None:
+    """Re-apply the school on every transaction this session factory opens.
+
+    Call this once, next to the sessionmaker. set_config(..., true) lasts only
+    for the current transaction, so a later commit or rollback clears the
+    school. The next query on that pooled connection would otherwise see no
+    school. One registration covers that next transaction whether the app
+    commits once or many times.
+
+    When no school is bound (startup, migrations, scripts) the listener
+    returns. apply_rls() inside get_db() is still the check that fails a
+    request whose middleware did not bind a school.
+    """
+    from sqlalchemy import event
+    from sqlalchemy.orm import sessionmaker
+
+    target = (
+        session_factory.class_
+        if isinstance(session_factory, sessionmaker)
+        else session_factory
+    )
+    if getattr(target, "_saraswati_rls_bound", False):
+        return
+    event.listen(session_factory, "after_begin", _bind_school)
+    target._saraswati_rls_bound = True
+
+
+def _bind_school(session, transaction, connection) -> None:
+    try:
+        school = current_school()
+    except RuntimeError:
+        return
+    from sqlalchemy import text
+
+    connection.execute(
+        text("SELECT set_config('app.tenant_id', :tenant_id, true)"),
+        {"tenant_id": school.tenant_id},
+    )
+
+
 @contextmanager
 def open_school_session() -> Iterator:
     """Yield a psycopg connection for the current school.

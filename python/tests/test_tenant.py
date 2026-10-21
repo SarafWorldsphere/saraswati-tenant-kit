@@ -11,7 +11,7 @@ from saraswati_tenant import (
     set_school_lookup,
 )
 from saraswati_tenant.s3keys import TenantKeyError
-from saraswati_tenant.session import apply_rls
+from saraswati_tenant.session import apply_rls, bind_rls, _bind_school
 
 
 def _school(**overrides) -> School:
@@ -123,3 +123,36 @@ def test_apply_rls_uses_the_bound_school():
     sql, params = db.calls[0]
     assert "set_config" in sql
     assert params == ("11111111-1111-1111-1111-111111111111",)
+
+
+class _FakeConnection:
+    def __init__(self):
+        self.calls = []
+
+    def execute(self, sql, params):
+        self.calls.append((str(sql), params))
+
+
+def test_bind_rls_sets_the_school_for_a_transaction():
+    connection = _FakeConnection()
+    with school_context(_school()):
+        _bind_school(None, None, connection)
+    sql, params = connection.calls[0]
+    assert "set_config" in sql
+    assert params == {"tenant_id": "11111111-1111-1111-1111-111111111111"}
+
+
+def test_bind_rls_is_quiet_without_a_school():
+    connection = _FakeConnection()
+    _bind_school(None, None, connection)
+    assert connection.calls == []
+
+
+def test_bind_rls_registers_once():
+    from sqlalchemy.orm import sessionmaker
+
+    first = sessionmaker()
+    second = sessionmaker()
+    bind_rls(first)
+    bind_rls(second)
+    assert first.class_._saraswati_rls_bound is True
