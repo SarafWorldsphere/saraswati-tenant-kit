@@ -14,12 +14,17 @@ CREATE TABLE teacher_master (
     section_1     text,
     section_2     text,
     role          text,
+    teacher_code  text,
     is_active     boolean,
     created_at    timestamptz,
     CONSTRAINT teacher_master_tenant_id_teacher_id_key UNIQUE (tenant_id, teacher_id),
     CONSTRAINT teacher_master_class_fk
         FOREIGN KEY (tenant_id, class_id) REFERENCES class_master (tenant_id, class_id)
 );
+
+CREATE UNIQUE INDEX teacher_master_tenant_code_idx
+    ON teacher_master (tenant_id, teacher_code)
+    WHERE teacher_code IS NOT NULL;
 
 CREATE UNIQUE INDEX teacher_master_tenant_email_idx
     ON teacher_master (tenant_id, email_id)
@@ -114,6 +119,7 @@ CREATE TABLE teacher_class_subject_map (
     tenant_id         uuid NOT NULL REFERENCES platform.tenants (tenant_id),
     teacher_id        bigint NOT NULL,
     class_id          bigint NOT NULL,
+    section           text,
     subject_name      text NOT NULL,
     academic_year     text NOT NULL,
     is_class_teacher  boolean NOT NULL DEFAULT false,
@@ -126,7 +132,7 @@ CREATE TABLE teacher_class_subject_map (
     CONSTRAINT teacher_class_subject_map_class_fk
         FOREIGN KEY (tenant_id, class_id) REFERENCES class_master (tenant_id, class_id),
     CONSTRAINT teacher_class_subject_map_natural_key
-        UNIQUE (tenant_id, teacher_id, class_id, subject_name, academic_year)
+        UNIQUE (tenant_id, teacher_id, class_id, section, subject_name, academic_year)
 );
 
 CREATE INDEX teacher_class_subject_map_tenant_class_idx
