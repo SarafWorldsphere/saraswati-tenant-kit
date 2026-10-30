@@ -40,6 +40,7 @@ EXPECTED_PUBLIC_TABLES = {
     "student_notification_status",
     "file_storage_metadata",
     "ai_usage_logs",
+    "parent_notifications",
 }
 
 
