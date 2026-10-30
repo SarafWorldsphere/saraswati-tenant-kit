@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 import os
-import time
 from collections.abc import Callable
 import psycopg
 from psycopg.rows import dict_row
 
 from saraswati_tenant.errors import SchoolNotFound, SchoolSuspended
+from saraswati_tenant.memory_cache import school_cache
 from saraswati_tenant.types import School
 
 Lookup = Callable[[str], School | None]
 
 _lookup: Lookup | None = None
-_cache: dict[str, tuple[float, School]] = {}
-_CACHE_SECONDS = 60 * 60 * 24  # 24 hours
 
 _LOOKUP_SQL = """
 SELECT
@@ -24,7 +22,21 @@ SELECT
     t.status,
     t.isolation,
     t.config,
-    t.database_secret
+    t.database_secret,
+    COALESCE((
+        SELECT jsonb_object_agg(f.feature_key, f.enabled)
+        FROM platform.tenant_features AS f
+        WHERE f.tenant_id = t.tenant_id
+    ), '{}'::jsonb) AS feature_rows,
+    COALESCE((
+        SELECT jsonb_object_agg(grouped.locale, grouped.labels)
+        FROM (
+            SELECT l.locale, jsonb_object_agg(l.label_key, l.value) AS labels
+            FROM platform.tenant_labels AS l
+            WHERE l.tenant_id = t.tenant_id
+            GROUP BY l.locale
+        ) AS grouped
+    ), '{}'::jsonb) AS label_rows
 FROM platform.tenant_domains AS d
 JOIN platform.tenants AS t ON t.tenant_id = d.tenant_id
 WHERE d.domain = %s
@@ -35,7 +47,7 @@ def set_school_lookup(lookup: Lookup | None) -> None:
     """Tests and local fakes pass a function. Production leaves this unset."""
     global _lookup
     _lookup = lookup
-    _cache.clear()
+    school_cache.clear()
 
 
 def normalize_host(host: str) -> str:
@@ -56,17 +68,16 @@ def normalize_host(host: str) -> str:
 
 def resolve_school(host: str) -> School:
     normalized = normalize_host(host)
-    cached = _cache.get(normalized)
-    now = time.monotonic()
-    if cached is not None and now - cached[0] < _CACHE_SECONDS:
-        school = cached[1]
+    cached = school_cache.get(normalized)
+    if isinstance(cached, School):
+        school = cached
     else:
         school = _find(normalized)
         if school is None and normalized != host.strip().lower():
             school = _find(host.strip().lower().split(":")[0].rstrip("."))
         if school is None:
             raise SchoolNotFound(normalized)
-        _cache[normalized] = (now, school)
+        school_cache.put(normalized, school)
     if school.status != "active":
         raise SchoolSuspended(normalized)
     if school.isolation not in ("rls", "database"):
@@ -100,8 +111,14 @@ def _lookup_database(domain: str) -> School | None:
         isolation=row["isolation"],
         config=config,
         database_secret=row["database_secret"],
+        feature_rows=_object(row["feature_rows"]),
+        label_rows=_object(row["label_rows"]),
     )
 
 
+def _object(value: object) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
 def clear_school_cache() -> None:
-    _cache.clear()
+    school_cache.clear()

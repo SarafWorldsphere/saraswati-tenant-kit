@@ -35,3 +35,30 @@ COMMENT ON TABLE platform.tenants IS
     'One school. config is the public branding JSON. database_secret is not public.';
 COMMENT ON TABLE platform.tenant_domains IS
     'Hostname that resolves to a school. Lowercase, no port, no path.';
+
+-- A missing feature row uses the catalog default. A row here replaces it.
+CREATE TABLE platform.tenant_features (
+    tenant_id   uuid NOT NULL REFERENCES platform.tenants (tenant_id),
+    feature_key text NOT NULL,
+    enabled     boolean NOT NULL,
+    PRIMARY KEY (tenant_id, feature_key),
+    CONSTRAINT tenant_features_key_format CHECK (feature_key ~ '^[a-z][a-z0-9_]{0,63}$')
+);
+
+-- Replaces one catalog module name for one language. Other languages stay on the catalog.
+CREATE TABLE platform.tenant_labels (
+    tenant_id   uuid NOT NULL REFERENCES platform.tenants (tenant_id),
+    label_key   text NOT NULL,
+    locale      text NOT NULL,
+    value       text NOT NULL,
+    PRIMARY KEY (tenant_id, label_key, locale),
+    CONSTRAINT tenant_labels_key_not_blank CHECK (label_key <> ''),
+    CONSTRAINT tenant_labels_locale_check CHECK (
+        locale IN ('en', 'hi', 'te', 'ta', 'kn', 'ml', 'mr', 'gu', 'bn', 'or')
+    )
+);
+
+COMMENT ON TABLE platform.tenant_features IS
+    'Turns a catalog feature on or off for one school. No row means the catalog default.';
+COMMENT ON TABLE platform.tenant_labels IS
+    'Replaces one module label for one language. The language must be in the catalog.';

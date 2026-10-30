@@ -1,4 +1,4 @@
-export type { SchoolConfig, ThemeName } from "./types";
+export type { SchoolConfig, SchoolLanguages, ThemeName } from "./types";
 export { SCHOOL_CSS_VARIABLES, THEME_NAMES, themeName } from "./types";
 export { TenantProvider, useSchool } from "./TenantProvider";
 export { SchoolBrand } from "./SchoolBrand";

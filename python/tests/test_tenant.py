@@ -10,6 +10,7 @@ from saraswati_tenant import (
     school_context,
     set_school_lookup,
 )
+from saraswati_tenant.catalog import LANGUAGE_CODES
 from saraswati_tenant.s3keys import TenantKeyError
 from saraswati_tenant.session import apply_rls, bind_rls, _bind_school
 
@@ -49,6 +50,104 @@ def test_resolve_uses_the_injected_lookup_only():
         assert school.public_config()["tenantId"] == school.tenant_id
     finally:
         set_school_lookup(None)
+
+
+def test_public_config_uses_catalog_defaults():
+    set_school_lookup(lambda domain: _school() if domain == "sss.swais.in" else None)
+    try:
+        body = resolve_school("sss.swais.in").public_config()
+    finally:
+        set_school_lookup(None)
+    assert body["features"]["student"] is True
+    assert body["features"]["library"] is False
+    assert body["languages"]["default"] == "en"
+    assert body["languages"]["enabled"] == list(LANGUAGE_CODES)
+    assert body["labels"]["en"]["module.student"] == "Student"
+    assert "database_secret" not in body
+    assert "databaseSecret" not in body
+
+
+def test_language_limit_keeps_the_default_and_drops_unknown_codes():
+    school = _school(
+        slug="vb",
+        config={
+            "schoolName": "Vidya Bharati",
+            "defaultLanguage": "hi",
+            "enabledLanguages": ["en", "xx", "hi"],
+        },
+    )
+    set_school_lookup(lambda domain: school if domain == "vb.swais.in" else None)
+    try:
+        body = resolve_school("vb.swais.in").public_config()
+    finally:
+        set_school_lookup(None)
+    assert body["languages"]["default"] == "hi"
+    assert body["languages"]["enabled"] == ["en", "hi"]
+    assert "te" not in body["labels"]
+    assert body["labels"]["hi"]["module.student"] == "विद्यार्थी"
+    assert body["labels"]["en"]["module.student"] == "Student"
+
+
+def test_label_rows_replace_only_enabled_languages():
+    school = _school(
+        config={
+            "schoolName": "Vidya Bharati",
+            "defaultLanguage": "hi",
+            "enabledLanguages": ["hi", "en"],
+            "features": {"library": True},
+        },
+        feature_rows={"library": True, "not_a_feature": True},
+        label_rows={
+            "hi": {"module.student": "छात्र", "module.unknown": "ignored"},
+            "te": {"module.student": "విద్యార్థి"},
+        },
+    )
+    set_school_lookup(lambda domain: school if domain == "vb.swais.in" else None)
+    try:
+        body = resolve_school("vb.swais.in").public_config()
+    finally:
+        set_school_lookup(None)
+    assert body["labels"]["hi"]["module.student"] == "छात्र"
+    assert "module.unknown" not in body["labels"]["hi"]
+    assert "te" not in body["labels"]
+    assert body["features"]["library"] is True
+    assert "not_a_feature" not in body["features"]
+    assert body["features"]["student"] is True
+
+
+def test_default_language_is_kept_when_the_list_omits_it():
+    school = _school(
+        config={
+            "schoolName": "Example",
+            "defaultLanguage": "hi",
+            "enabledLanguages": ["en"],
+        }
+    )
+    enabled = school.public_config()["languages"]["enabled"]
+    assert enabled[0] == "hi"
+    assert "en" in enabled
+    assert "te" not in enabled
+
+
+def test_resolved_catalog_is_served_from_the_school_cache():
+    school = _school()
+    first = school.public_config()
+    first["features"]["student"] = False
+    first["labels"]["en"]["module.student"] = "Changed"
+    second = school.public_config()
+    assert second["features"]["student"] is True
+    assert second["labels"]["en"]["module.student"] == "Student"
+
+
+def test_config_json_cannot_turn_a_feature_on():
+    school = _school(config={"schoolName": "Example", "features": {"library": True}})
+    assert school.public_config()["features"]["library"] is False
+
+
+def test_unknown_default_language_falls_back_to_english():
+    school = _school(config={"schoolName": "Example", "defaultLanguage": "xx"})
+    body = school.public_config()
+    assert body["languages"]["default"] == "en"
 
 
 def test_unknown_and_suspended_hosts():

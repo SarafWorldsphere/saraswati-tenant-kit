@@ -1,0 +1,36 @@
+{
+  "languages": [
+    { "code": "en", "name": "English" },
+    { "code": "hi", "name": "Hindi" },
+    { "code": "te", "name": "Telugu" },
+    { "code": "ta", "name": "Tamil" },
+    { "code": "kn", "name": "Kannada" },
+    { "code": "ml", "name": "Malayalam" },
+    { "code": "mr", "name": "Marathi" },
+    { "code": "gu", "name": "Gujarati" },
+    { "code": "bn", "name": "Bengali" },
+    { "code": "or", "name": "Odia" }
+  ],
+  "features": {
+    "student": { "defaultEnabled": true },
+    "faculty": { "defaultEnabled": true },
+    "parent": { "defaultEnabled": true },
+    "headmaster": { "defaultEnabled": true },
+    "admin": { "defaultEnabled": true },
+    "nyasa": { "defaultEnabled": false },
+    "library": { "defaultEnabled": false },
+    "panchakosha": { "defaultEnabled": false },
+    "samskara": { "defaultEnabled": false }
+  },
+  "labels": {
+    "module.student": { "en": "Student", "hi": "विद्यार्थी" },
+    "module.faculty": { "en": "Faculty", "hi": "आचार्य" },
+    "module.parent": { "en": "Parent", "hi": "पालक" },
+    "module.headmaster": { "en": "Headmaster", "hi": "प्रधानाचार्य" },
+    "module.admin": { "en": "School Admin", "hi": "प्रशासन" },
+    "module.nyasa": { "en": "Trust", "hi": "न्यास" },
+    "module.library": { "en": "Library", "hi": "ग्रन्थालय" },
+    "module.panchakosha": { "en": "Holistic index", "hi": "पञ्चकोश" },
+    "module.samskara": { "en": "Values and service", "hi": "संस्कार" }
+  }
+}

@@ -10,8 +10,17 @@
     "./resolve": "./js/src/resolveTenant.ts",
     "./themes.css": "./js/src/themes/index.css"
   },
+  "scripts": {
+    "build": "tsc --noEmit"
+  },
   "dependencies": {
     "pg": "8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "@types/pg": "8.20.0",
+    "@types/react": "19.1.4",
+    "typescript": "5.8.3"
   },
   "peerDependencies": {
     "react": ">=18"

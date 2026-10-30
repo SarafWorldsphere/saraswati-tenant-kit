@@ -21,5 +21,8 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 include = ["saraswati_tenant*"]
 
+[tool.setuptools.package-data]
+saraswati_tenant = ["catalog/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

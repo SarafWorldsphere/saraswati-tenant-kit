@@ -67,7 +67,7 @@ School tables are unprefixed and each has `tenant_id`. The pair `(tenant_id, id)
 
 | Area | Tables |
 | --- | --- |
-| Control plane | `platform.tenants`, `platform.tenant_domains` |
+| Control plane | `platform.tenants`, `platform.tenant_domains`, `platform.tenant_features`, `platform.tenant_labels` |
 | Identity | `roles`, `users_masters`, `otp_verifications` |
 | Academics | `class_master`, `subject_master`, `chapter_master`, `chapter_content`, `exam_master` |
 | People | `teacher_master`, `student_master`, `parent_master`, `parent_student_map`, `teacher_class_subject_map` |
@@ -76,6 +76,8 @@ School tables are unprefixed and each has `tenant_id`. The pair `(tenant_id, id)
 | Files | `file_storage_metadata`, `ai_usage_logs` |
 
 `platform` is not covered by the tenant policy. The app role can select it and cannot insert into it.
+
+`School.public_config()` adds three fields on top of the branding JSON. `features` is each catalog feature key and whether this school has it. A missing `platform.tenant_features` row uses the catalog default: the five role modules are on, and `library`, `nyasa`, `panchakosha`, and `samskara` are off. `languages` is `default`, `enabled`, and `names`. `defaultLanguage` in `config` picks the default (`en` when it is missing or unknown). `enabledLanguages` limits the set. A missing list means every catalog language, and the default language is always included. `labels` is one map of module names per enabled language. A `platform.tenant_labels` row replaces one name. A language with no translation uses the English catalog string. The role id sent to login stays English. The screen shows `labels[language]`.
 
 ## Names that differ from the current databases
 

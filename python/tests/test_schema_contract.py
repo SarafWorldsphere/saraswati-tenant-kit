@@ -77,7 +77,13 @@ def _create_blocks(sql: str) -> dict[str, str]:
 
 def test_every_school_table_is_defined_once():
     blocks = _create_blocks(_sql())
-    public = {name for name in blocks if name not in {"tenants", "tenant_domains"}}
+    platform = {
+        "tenants",
+        "tenant_domains",
+        "tenant_features",
+        "tenant_labels",
+    }
+    public = {name for name in blocks if name not in platform}
     assert public == EXPECTED_PUBLIC_TABLES
 
 
@@ -97,6 +103,9 @@ def test_control_plane_is_not_a_school_table():
     assert "slug" in blocks["tenants"]
     assert "database_secret" in blocks["tenants"]
     assert "domain" in blocks["tenant_domains"]
+    assert "feature_key" in blocks["tenant_features"]
+    assert "label_key" in blocks["tenant_labels"]
+    assert "locale" in blocks["tenant_labels"]
     migration = (ROOT / "migrations" / "0001_row_level_security.sql").read_text()
     assert "nspname = 'public'" in migration
 

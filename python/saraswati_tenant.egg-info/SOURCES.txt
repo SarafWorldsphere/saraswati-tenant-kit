@@ -2,6 +2,7 @@ pyproject.toml
 saraswati_tenant/__init__.py
 saraswati_tenant/context.py
 saraswati_tenant/errors.py
+saraswati_tenant/memory_cache.py
 saraswati_tenant/middleware.py
 saraswati_tenant/resolve.py
 saraswati_tenant/s3keys.py
@@ -12,5 +13,7 @@ saraswati_tenant.egg-info/SOURCES.txt
 saraswati_tenant.egg-info/dependency_links.txt
 saraswati_tenant.egg-info/requires.txt
 saraswati_tenant.egg-info/top_level.txt
+saraswati_tenant/catalog/__init__.py
+saraswati_tenant/catalog/catalog.json
 tests/test_schema_contract.py
 tests/test_tenant.py

@@ -1,2 +1,3 @@
+node_modules/
 python/tests/__pycache__/
 python/saraswati_tenant/__pycache__/
